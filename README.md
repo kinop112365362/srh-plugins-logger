@@ -33,5 +33,7 @@ function App(){
 运行会输出如下 Logger
 
 [Ctrl] onMount
+
 [Service]  helloWorld 'helloWorld'
+
 [Reducer Case]   setName '' → 'helloWorld'
