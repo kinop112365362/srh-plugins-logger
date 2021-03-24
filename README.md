@@ -1,4 +1,4 @@
-# Srh-plugins-logger
+# Srh-Plugins-Logger
 
 ## Quick Start
 
