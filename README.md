@@ -1,40 +1,37 @@
-# Structured-React-Hook
+# Srh-plugins-logger
 
-面向企业级的次世代 React 应用/组件研发框架
-
-先来安装下
-```js
-yarn add structured-react-hook
-
-```
-
-这是一个基本示例, 声明状态, 通过控制器修改状态触发渲染
+## Quick Start
 
 ```js
-import React, { useEffect } from 'react'
-import createStore from 'structured-react-hook'
+import { srhLogger } from 'srh-plugins-logger'
+import { createStore } from 'structured-react-hook'
 
-const storeConfig = {
-  initState: {
-    text: ''
-  },
-  controller: {
-    onComponentInit () {
-      this.rc.setText('hello world')
+const useStore = createStore(
+  {
+    initState: {name:''},
+    service:{
+      helloWorld(){
+        this.rc.setName('hello world')
+      }
     }
-  }
-}
-const useStore = createStore(storeConfig)
-
-function App () {
+    controller: {
+      onMount(){
+        this.service.helloWorld()
+      }
+    }
+  },
+  [srhLogger]
+)
+function App(){
   const store = useStore()
-  useEffect(() => {
-    store.controller.onComponentInit()
-  }, [])
-  return <div>{store.state.text}</div>
+  return(
+    <div>{store.state.name}</div>
+  )
 }
 ```
 
-So Easy!!
+运行会输出如下 Logger
 
-更详细的文档见库官网 https://kinop112365362.github.io/structured-react-hook/
+[Ctrl] onMount
+[Service]  helloWorld 'helloWorld'
+[Reducer Case]   setName '' → 'helloWorld'

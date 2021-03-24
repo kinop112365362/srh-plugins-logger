@@ -1,55 +1,57 @@
-/* eslint-disable react/display-name */
-// @filename: index.js
-import { useReducer, useContext } from 'react'
-import { AppContext } from './app-context'
-import mergeWith from 'lodash.mergewith'
-import { combination } from './combination'
-import { actionIsUndefined } from './utils/action-is-undefined'
-import { getReducerModel } from './get-reducer-model'
-import { Store } from './Store'
-
-export function createStore(storeConfig, enhance) {
-  let store = new Store(storeConfig)
-  if (enhance) {
-    if (enhance.length > 1) {
-      store = enhance.reduce((prevFn, fn) => {
-        return fn(prevFn(store, storeConfig))
-      })
+function getStateType (rcKey) {
+  return (
+    rcKey
+      .slice(3)
+      .charAt(0)
+      .toLowerCase() + rcKey.slice(4)
+  )
+}
+function enhanceUtils (store, storeKey, worker = { before (key, args) {} }) {
+  const keys = Object.keys(store[storeKey])
+  keys.forEach(key => {
+    const originFn = store[storeKey][key]
+    store[storeKey][key] = (...args) => {
+      worker.before(key, ...args)
+      return originFn(...args)
     }
-    store = enhance[0](store)
-  }
-
-  if (storeConfig.name) {
-    combination[storeConfig.name] = store
-  }
-  const reducer = (state, action) => {
-    const stateKeys = Object.keys(store.state)
-    const reducerModel = getReducerModel(stateKeys)(state)
-    actionIsUndefined(reducerModel, action)
-    const result = reducerModel[action[0]](action[1])
-    // console.group(action[0])
-    // console.log('prev store.state =>', state)
-    // console.log('next state =>', action[1])
-    // console.groupEnd()
-    const newState = mergeWith(state, result, (objValue, srcValue) => {
-      if (Array.isArray(objValue)) {
-        return [...srcValue]
+  })
+}
+export const srhLogger = (s, storeConfig) => {
+  enhanceUtils(s, 'rc', {
+    before (rcKey, ...args) {
+      console.groupCollapsed(`[Reducer Case]   ${rcKey}`)
+      console.log('CurrentValue:', s.state[getStateType(rcKey)])
+      console.log('NextValue:', args)
+      console.groupEnd(`[Reducer Case]  ${rcKey}`)
+    }
+  })
+  if (s.controller) {
+    enhanceUtils(s, 'controller', {
+      before (ctrlKey, ...args) {
+        console.groupCollapsed(`[Ctrl] ${ctrlKey}`)
+        if (args) {
+          console.log(args)
+        }
+        console.groupCollapsed('SourceCode')
+        console.log(storeConfig.controller[ctrlKey])
+        console.groupEnd('SourceCode')
+        console.groupEnd(`[Ctrl] ${ctrlKey}`)
       }
     })
-    return { ...newState }
   }
-  return function (props) {
-    const context = useContext(AppContext)
-    const [state, dispatch] = useReducer(reducer, { ...store.state })
-    store.update(state, context, dispatch, props)
-    /**
-     * @type {store.state} state
-     */
-    return {
-      view: store.view,
-      state,
-      refs: store.refs,
-      controller: store.controller,
-    }
+  if (s.service) {
+    enhanceUtils(s, 'service', {
+      before (serviceKey, ...args) {
+        console.groupCollapsed(`[Service]  ${serviceKey}`)
+        if (args) {
+          console.log(args)
+        }
+        console.groupCollapsed('SourceCode')
+        console.log(storeConfig.service[serviceKey])
+        console.groupEnd('SourceCode')
+        console.groupEnd(`[Service]  ${serviceKey}`)
+      }
+    })
   }
+  return s
 }
