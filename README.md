@@ -24,6 +24,9 @@ const useStore = createStore(
 )
 function App(){
   const store = useStore()
+  useEffect(()=>{
+    store.controller.onMount()
+  },[])
   return(
     <div>{store.state.name}</div>
   )
