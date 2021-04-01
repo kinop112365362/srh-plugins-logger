@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function getStateType(rcKey) {
   return rcKey.slice(3).charAt(0).toLowerCase() + rcKey.slice(4)
 }
@@ -15,7 +16,6 @@ export const srhLogger = (s, storeConfig) => {
   enhanceUtils(s, 'rc', {
     before(rcKey, ...args) {
       console.groupCollapsed(`[Reducer Case]   ${rcKey}`)
-      console.log('CurrentValue:', s.state[getStateType(rcKey)])
       console.log('NextValue:', args)
       console.groupEnd(`[Reducer Case]  ${rcKey}`)
     },
