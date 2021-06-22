@@ -26,7 +26,7 @@ export const srhLogger = (s, storeConfig) => {
     enhanceUtils(s, 'controller', {
       before(ctrlKey, ...args) {
         if (window.dux_logDebugger) {
-          if (!ctrlKey.includes('mouse')) {
+          if (!ctrlKey.includes('Mouse')) {
             console.groupCollapsed(`[Ctrl] ${ctrlKey}`)
             if (args) {
               console.log(args)
