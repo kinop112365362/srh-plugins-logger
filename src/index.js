@@ -15,36 +15,44 @@ function enhanceUtils(store, storeKey, worker = { before() {} }) {
 export const srhLogger = (s, storeConfig) => {
   enhanceUtils(s, 'rc', {
     before(rcKey, ...args) {
-      console.groupCollapsed(`[Reducer Case]   ${rcKey}`)
-      console.log('NextValue:', args)
-      console.groupEnd(`[Reducer Case]  ${rcKey}`)
+      if (window.dux_logDebugger) {
+        console.groupCollapsed(`[Reducer Case]   ${rcKey}`)
+        console.log('NextValue:', args)
+        console.groupEnd(`[Reducer Case]  ${rcKey}`)
+      }
     },
   })
   if (s.controller) {
     enhanceUtils(s, 'controller', {
       before(ctrlKey, ...args) {
-        console.groupCollapsed(`[Ctrl] ${ctrlKey}`)
-        if (args) {
-          console.log(args)
+        if (window.dux_logDebugger) {
+          if (!ctrlKey.includes('mouse')) {
+            console.groupCollapsed(`[Ctrl] ${ctrlKey}`)
+            if (args) {
+              console.log(args)
+            }
+            console.groupCollapsed('SourceCode')
+            console.log(storeConfig.controller[ctrlKey])
+            console.groupEnd('SourceCode')
+            console.groupEnd(`[Ctrl] ${ctrlKey}`)
+          }
         }
-        console.groupCollapsed('SourceCode')
-        console.log(storeConfig.controller[ctrlKey])
-        console.groupEnd('SourceCode')
-        console.groupEnd(`[Ctrl] ${ctrlKey}`)
       },
     })
   }
   if (s.service) {
     enhanceUtils(s, 'service', {
       before(serviceKey, ...args) {
-        console.groupCollapsed(`[Service]  ${serviceKey}`)
-        if (args) {
-          console.log(args)
+        if (window.dux_logDebugger) {
+          console.groupCollapsed(`[Service]  ${serviceKey}`)
+          if (args) {
+            console.log(args)
+          }
+          console.groupCollapsed('SourceCode')
+          console.log(storeConfig.service[serviceKey])
+          console.groupEnd('SourceCode')
+          console.groupEnd(`[Service]  ${serviceKey}`)
         }
-        console.groupCollapsed('SourceCode')
-        console.log(storeConfig.service[serviceKey])
-        console.groupEnd('SourceCode')
-        console.groupEnd(`[Service]  ${serviceKey}`)
       },
     })
   }
